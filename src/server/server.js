@@ -22,6 +22,7 @@ connection.connect(err => {
 
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(session);
 
 app.post('/login', ( req, res ) => {
   res.redirect(route + '/register');
