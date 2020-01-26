@@ -1,13 +1,19 @@
 import React from 'react';
+import RegisterPage from './views/register';
+import LoginPage from './views/login';
+import { Route, Switch } from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
-        <h1>test</h1>
-        <p>Dit is de branch van stijn</p>
-        <p>Tekst van branch justin</p>
-        <p>dit de de branch van stijn vanaf andere user</p>
+
+    <Route exact path='/' component={LoginPage}/>
+    <Route exact path='/register' component={RegisterPage}/>
+
     </div>
+    
+    
+    
   );
 }
 
