@@ -7,8 +7,8 @@ class login extends Component {
                 <h1>Login</h1>
                 <form action="http://localhost:4000/login" method="POST">
                     <div>
-                        <label for="name">Naam</label>
-                        <input type="text" id="name" name="name" required></input>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required></input>
                     </div>
                     <div>
                         <label for="password">Wachtwoord</label>

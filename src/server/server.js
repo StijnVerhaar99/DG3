@@ -1,9 +1,8 @@
 const express = require('express');
-const session = require('express-session');
-const app = express();
 const cors = require('cors');
-const route = 'http://localhost:3000';
 const mysql = require('mysql2');
+const md5 = require('md5');
+const session = require('express-session');
 
 
 const connection = mysql.createConnection({
@@ -19,13 +18,42 @@ connection.connect(err => {
   }
 })
 
+const route = 'http://localhost:3000';
+const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
-app.use(session);
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: false
+}))
+
+let userEmail = null;
+
+app.get('/getuseremail', (req, res) => {
+  return res.json({
+    email : userEmail
+  })
+})
 
 app.post('/login', ( req, res ) => {
-  res.redirect(route + '/register');
+  let email = req.body.email;
+  let password = md5(req.body.password);
+  let error = null;
+  let LOGIN_QUERY = `SELECT * FROM users WHERE email = '${email}' AND password = '${password}'`;
+
+  connection.query(LOGIN_QUERY, (err, results, fields) => {
+    if(results.length > 0) {
+      userEmail = email;
+      res.redirect(route + '/user')
+    } else {
+      error = 'incorrect';
+      res.redirect(route + '/?err=' + error)
+      console.log('verkeerde login');
+    }
+  });
+
 })
 
 app.post('/register', ( req, res ) => {
@@ -33,12 +61,31 @@ app.post('/register', ( req, res ) => {
   const email  = req.body.email;
   const pass1 = req.body.password1;
   const pass2 = req.body.password2;
+  const password = md5(pass1);
 
-  req.session.username = username;
+  const USERTAKEN_QUERY = `SELECT * FROM users WHERE email = '${email}'`;
+  const REGISTER_QUERY = `INSERT INTO users ( name, email, password ) VALUES ('${username}', '${email}', '${password}')`;
 
-  console.log(pass2);
+  let error = null;
 
-  res.redirect(route + '/register');
+    connection.query(USERTAKEN_QUERY, (err, results, fields) => {
+      if(results.length > 0) {
+        error = 2;
+        res.redirect(route + '/register?err=' + error);
+      } else if (pass1 === pass2){
+        connection.query(REGISTER_QUERY, (err, results) => {
+          if(err) {
+            res.send(err)
+          } else {
+            error = 0;
+            res.redirect(route + '/register?err=' + error);
+          }
+        });
+      } else {
+        error = 1
+        res.redirect(route + '/register?err=' + error);
+      }
+    });
 })  
 
 app.listen(4000, () => {

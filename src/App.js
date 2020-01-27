@@ -1,7 +1,8 @@
 import React from 'react';
 import RegisterPage from './views/register';
 import LoginPage from './views/login';
-import { Route, Switch } from 'react-router-dom';
+import UserPage from './views/user';
+import { Route } from 'react-router-dom';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
 
     <Route exact path='/' component={LoginPage}/>
     <Route exact path='/register' component={RegisterPage}/>
+    <Route exact path='/user' component={UserPage}/>
 
     </div>
     
