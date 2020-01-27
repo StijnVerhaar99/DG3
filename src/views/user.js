@@ -6,19 +6,33 @@ class user extends Component {
         user: [] 
     }
 
-    getUserEmail = () => {
-        fetch('http://localhost:4000/getuseremail')
+    componentDidMount() {
+        this.getUserData();
+    }
+
+    getUserData = () => {
+        fetch('http://localhost:4000/getuserdata')
         .then(response => response.json())
-        .then(response => this.setState({ user: response.email}))
+        .then(response => this.setState({ user: response.userData}))
     }
 
     render() {
-        this.getUserEmail();
 
+        let userName = null;
+        let userEmail = null;
+
+        this.state.user.map((user) => {
+            return (
+                userName = user.name,
+                userEmail = user.email
+            )
+            
+        })
+        console.log(userEmail);
 
         return (
             <div>
-                <h1>{this.state.user}</h1>
+                <h1>Hallo {userName}</h1>
             </div>
         );
     }

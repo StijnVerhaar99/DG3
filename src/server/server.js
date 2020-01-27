@@ -29,11 +29,11 @@ app.use(session({
   saveUninitialized: false
 }))
 
-let userEmail = null;
+let userData = null;
 
-app.get('/getuseremail', (req, res) => {
+app.get('/getuserdata', (req, res) => {
   return res.json({
-    email : userEmail
+    userData
   })
 })
 
@@ -45,7 +45,7 @@ app.post('/login', ( req, res ) => {
 
   connection.query(LOGIN_QUERY, (err, results, fields) => {
     if(results.length > 0) {
-      userEmail = email;
+      userData = results;
       res.redirect(route + '/user')
     } else {
       error = 'incorrect';
