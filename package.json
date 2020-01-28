@@ -7,6 +7,7 @@
     "@testing-library/react": "^9.4.0",
     "@testing-library/user-event": "^7.2.1",
     "cors": "^2.8.5",
+    "express": "^4.17.1",
     "express-session": "^1.17.0",
     "md5": "^2.2.1",
     "mysql2": "^2.1.0",

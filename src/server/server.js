@@ -3,14 +3,9 @@ const cors = require('cors');
 const mysql = require('mysql2');
 const md5 = require('md5');
 const session = require('express-session');
+const conn = require('./dbconfig.js');
 
-
-const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'dg3'
-})
+let connection = conn.connection(mysql);
 
 connection.connect(err => {
   if(err) {
