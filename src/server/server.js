@@ -32,6 +32,21 @@ app.get('/getuserdata', (req, res) => {
   })
 })
 
+app.get('/getnewfriends', (req, res) => {
+  let GETFRIENDS_QUERY = `SELECT name, id FROM users`;
+
+  connection.query(GETFRIENDS_QUERY, (err, results) => {
+    if(err) { 
+        return res.send(err)
+    } 
+    else {
+        return res.json({
+            data: results
+        })
+    }
+}); 
+});
+
 app.post('/login', ( req, res ) => {
   let email = req.body.email;
   let password = md5(req.body.password);

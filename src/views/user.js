@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import Friends from './friends/friends';
+
 class user extends Component {
 
     state = {
@@ -28,11 +30,11 @@ class user extends Component {
             )
             
         })
-        console.log(userEmail);
 
         return (
             <div>
-                <h1>Hallo {userName}</h1>
+    <h1>Hallo {userName} {userEmail}</h1>
+                <Friends/>
             </div>
         );
     }
