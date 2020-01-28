@@ -5,7 +5,7 @@ import Friends from './friends/friends';
 class user extends Component {
 
     state = {
-        user: [] 
+        user: []
     }
 
     componentDidMount() {

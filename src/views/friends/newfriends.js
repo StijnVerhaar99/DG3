@@ -1,34 +1,42 @@
 import React, { Component } from 'react';
 
 
-class newfriends extends Component {
+class NewFriends extends Component {
+   constructor(props) {
+    super(props);
 
-  state = {
-    user: []
+    this.state = {
+      friends: []
+    };
   }
 
   componentDidMount() {
     this.getNewFriends();
-    console.log(this.state.user);
   }
 
-  getNewFriends = _ => {
+  getNewFriends = () => {
       fetch('http://localhost:4000/getnewfriends')
       .then(response => response.json())
-      .then(response => this.setState({ user: response.data}))
-
-      // fetch('http://localhost:4000/getuserdata')
-      // .then(response => response.json())
-      // .then(response => this.setState({ user: response.userData}))
+      .then(response => this.setState({ friends: response.data}))
   }
 
   render() {
+
+    let newFriendsList = this.state.friends.map((friend) => {
+      return <li key={friend.id}>{friend.name}</li>
+    })
+
+    //console.log(newFriendsList)
     return (
-      <div>
+
+      <div >
         nieuwe vrienden
+        <ul>
+          {newFriendsList}
+        </ul>
       </div>
     );
   }
 }
 
-export default newfriends;
+export default NewFriends;

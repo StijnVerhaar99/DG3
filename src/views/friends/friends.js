@@ -4,9 +4,32 @@ import CurrentFriends from './currentfriends';
 
 
 class friends extends Component {
-  state = {
-    showCurrentFriends: true,
-    showNewFriends: false,
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      userFriendsString: '',
+      userFriendsArray: [],
+      showCurrentFriends: true,
+      showNewFriends: false,
+    };
+  }
+
+  componentDidMount() {
+    this.getUserFriends();
+    //this.setFriendsArray();
+  }
+
+  getUserFriends = () => {
+    fetch('http://localhost:4000/getuserfriends')
+    .then(response => response.json())
+    .then(response => this.setState({ userFriendsString: response.userFriends}))
+  }
+
+  setFriendsArray = (friends) => {
+    let arrayFriends = friends.split(',');
+
+    return arrayFriends;
   }
 
   showCurrentFriends() {
@@ -16,16 +39,18 @@ class friends extends Component {
   showNewFriends() {
     this.setState({showCurrentFriends: false, showNewFriends: true});
   }
+
   render() {
+    const friendsString = this.state.userFriendsString;
 
-
+    const friendsArray = this.setFriendsArray(friendsString);
 
     return (
       <div>
         <div onClick={this.showCurrentFriends.bind(this)}>Vrienden</div>
         <div onClick={this.showNewFriends.bind(this)}>Zoek vrienden</div>
         {this.state.showCurrentFriends && <CurrentFriends/>}
-        {this.state.showNewFriends && <NewFriends/>}
+        {this.state.showNewFriends && <NewFriends friends={friendsArray}/>}
       </div>
     );
   }

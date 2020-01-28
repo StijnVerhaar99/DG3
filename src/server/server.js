@@ -25,6 +25,7 @@ app.use(session({
 }))
 
 let userData = null;
+let userFriends = null
 
 app.get('/getuserdata', (req, res) => {
   return res.json({
@@ -32,19 +33,26 @@ app.get('/getuserdata', (req, res) => {
   })
 })
 
+app.get('/getuserfriends', (req, res) => {
+  return res.json({
+    userFriends
+  })
+})
+
 app.get('/getnewfriends', (req, res) => {
   let GETFRIENDS_QUERY = `SELECT name, id FROM users`;
 
   connection.query(GETFRIENDS_QUERY, (err, results) => {
+    let data = results;
     if(err) { 
         return res.send(err)
     } 
     else {
         return res.json({
-            data: results
+            data
         })
     }
-}); 
+  }); 
 });
 
 app.post('/login', ( req, res ) => {
@@ -56,6 +64,7 @@ app.post('/login', ( req, res ) => {
   connection.query(LOGIN_QUERY, (err, results, fields) => {
     if(results.length > 0) {
       userData = results;
+      userFriends = results[0].friends;
       res.redirect(route + '/user')
     } else {
       error = 'incorrect';
