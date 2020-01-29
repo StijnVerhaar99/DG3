@@ -22,9 +22,9 @@ class NewFriends extends Component {
 
   render() {
 
-    let newFriendsList = this.state.friends.map((friend) => {
-      return <li key={friend.id}>{friend.name}</li>
-    })
+    // let newFriendsList = this.state.friends.map((friend) => {
+    //   return <li key={friend.id}>{friend.name}</li>
+    // })
 
     //console.log(newFriendsList)
     return (
@@ -32,7 +32,7 @@ class NewFriends extends Component {
       <div >
         nieuwe vrienden
         <ul>
-          {newFriendsList}
+          {/* {newFriendsList} */}
         </ul>
       </div>
     );

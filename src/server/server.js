@@ -25,7 +25,7 @@ app.use(session({
 }))
 
 let userData = null;
-let userFriends = null
+let userFriends = null;
 
 app.get('/getuserdata', (req, res) => {
   return res.json({
@@ -40,19 +40,31 @@ app.get('/getuserfriends', (req, res) => {
 })
 
 app.get('/getnewfriends', (req, res) => {
-  let GETFRIENDS_QUERY = `SELECT name, id FROM users`;
+  
+  var i;
+  let friends = ['1', '2'];
+  let thisUserFriends = [];
+  
+  for (i = 0; i < 2; i++) {
 
-  connection.query(GETFRIENDS_QUERY, (err, results) => {
-    let data = results;
-    if(err) { 
+  //let GETFRIENDS_QUERY = `SELECT name, id FROM users`;
+  let GETFRIENDS_QUERY = `SELECT name, id FROM users WHERE id='${friends[i]}'`;
+  console.log('query uitvoeren ' + GETFRIENDS_QUERY);
+  
+    connection.query(GETFRIENDS_QUERY, (err, results) => {   
+      if(err) { 
         return res.send(err)
-    } 
-    else {
-        return res.json({
-            data
-        })
-    }
-  }); 
+      } 
+      else {
+        thisUserFriends.push(results);
+      }
+      console.log(thisUserFriends);
+    });
+    return res.json({ 
+      data: thisUserFriends
+    });
+
+  } 
 });
 
 app.post('/login', ( req, res ) => {
