@@ -1,29 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 
-class NewFriends extends Component {
-
-
-
-
-
-  render() {
-
-
-    //  let newFriendsList = this.state.friends.map((friend) => {
-    //     return <li key={friend.id}>{friend.name}</li>
-    //   })
-
+const NewFriends = (props) => {
     return (
-
-      <div >
-        nieuwe vrienden
-        <ul>
-          {/* {newFriendsList} */}
-        </ul>
-      </div>
+        <li onClick={props.clickAdd} key={props.id}>{props.friend}</li>
     );
   }
-}
 
 export default NewFriends;

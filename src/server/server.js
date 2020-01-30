@@ -26,8 +26,9 @@ app.use(session({
 
 let userData = null;
 let userFriends = null;
-let thisUserFriends = [];
-let friendsArray = [];
+let userID = null;
+let currentFriendsArray = [];
+
 
 app.get('/getuserdata', (req, res) => {
   return res.json({
@@ -41,35 +42,91 @@ app.get('/getuserfriends', (req, res) => {
   })
 })
 
-app.get('/setnewfriends', (req, res) => {
+//CURRENT
+app.get('/setcurrentfriends', (req, res) => {
+function setFriendsArray(friends) {
+    let arrayFriends = friends.split(',');
+    return arrayFriends;
+}
   
   var i;
-  let friends = ['9', '10'];
-  
+  let friends = setFriendsArray(userFriends)
+  currentFriendsArray = [];
 
-    for (i = 0; i < friends.length; i++) {
-      //console.log(friends.length)
-      const friend = friends[i];
+  for (i = 0; i < friends.length; i++) {
+    const friend = friends[i];
 
-      const NEWFRIENDS_QUERY = `SELECT name, id FROM users WHERE id = '${friend}'`;
-      //console.log(NEWFRIENDS_QUERY);
+    const CURRENTFRIENDS_QUERY = `SELECT name, id FROM users WHERE id = '${friend}'`;
 
-      connection.query(NEWFRIENDS_QUERY, (err, res) => {
-        if(err) {
-          return res.send(err);
-        } else {
-          friendsArray.push(res);
-          console.log(friendsArray);
-        }
-      }) 
-    } 
+    connection.query(CURRENTFRIENDS_QUERY, (err, res) => {
+      if(err) {
+        return res.send(err);
+      } else {
+        currentFriendsArray.push(res);
+      }
+    }) 
+  } 
 })
 
-app.get('/getnewfriends', (req, res) => {
+//CURRENT
+app.get('/getcurrentfriends', (req, res) => {
   return res.json({
-    data : friendsArray
+    data : currentFriendsArray
   })
 })
+
+//NEW
+app.get('/setnewfriends', (req, res) => {
+  function setFriendsArray(friends) {
+      let arrayFriends = friends.split(',');
+      return arrayFriends;
+  }
+    
+  var i;
+  let friends = setFriendsArray(userFriends);
+  friends.push(userID);
+  let WHEREQUERY = '';
+
+  for (i = 0; i < friends.length; i++) {
+    const friend = friends[i];
+    let friendsLengthStopper = (friends.length -1)  
+    if(friendsLengthStopper === i) {
+      WHEREQUERY += `id <> '${friend}'`
+    } else {
+      WHEREQUERY += `id <> '${friend}' AND `
+    }     
+  } 
+
+  const NEWFRIENDS_QUERY = `SELECT name, id FROM users WHERE ` + WHEREQUERY;
+  
+  connection.query(NEWFRIENDS_QUERY, (err, results) => {
+    if(err) { 
+      return res.send(err)
+    } 
+    else {
+      return res.json({
+          data: results
+      })
+    }
+  })
+})
+
+app.get('/addfriend', (req, res) => {
+  let id = req.query;
+  id = JSON.parse(id.id);
+  let newFriends = userFriends + ',' + id;
+
+  let ADDFRIEND_QUERY = `UPDATE users SET friends='${newFriends}' WHERE id='${userID}'`; 
+
+  connection.query(ADDFRIEND_QUERY, (err, results) => {
+    if(err) {
+      return res.send(err)
+    } else {
+      return res.send('Vriend toegevoegd');
+    }
+  })
+})
+
 
 app.post('/login', ( req, res ) => {
   let email = req.body.email;
@@ -81,6 +138,7 @@ app.post('/login', ( req, res ) => {
     if(results.length > 0) {
       userData = results;
       userFriends = results[0].friends;
+      userID = results[0].id;
       res.redirect(route + '/user')
     } else {
       error = 'incorrect';

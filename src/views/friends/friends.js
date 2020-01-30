@@ -12,18 +12,14 @@ class friends extends Component {
       userFriendsArray: [],
       showCurrentFriends: true,
       showNewFriends: false,
-      friends: []
+      friends: [],
+      newFriends: []
     };
   }
 
   componentDidMount() {
     this.getUserFriends();
-    //if (typeof this.state.friends === []) {
-      this.getNewFriends();
-      this.setNewFriends();
-    //}
-    console.log(friends);
-    //console.log(typeof this.state.friends !== [])
+    this.setNewFriends();   
   }
 
   getUserFriends = () => {
@@ -32,24 +28,27 @@ class friends extends Component {
     .then(response => this.setState({ userFriendsString: response.userFriends}))
   }
 
-  getNewFriends = () => {
-    fetch('http://localhost:4000/setnewfriends')
+  setCurrentFriends = () => {
+    fetch(`http://localhost:4000/setcurrentfriends`)
+  }
+
+  getCurrentFriends = () => {
+    fetch(`http://localhost:4000/getcurrentfriends`)
+    .then(response => response.json())
+    .then(response => this.setState({ friends: response.data}))
+    
   }
 
   setNewFriends = () => {
-    fetch('http://localhost:4000/getnewfriends')
+    fetch(`http://localhost:4000/setnewfriends`)
     .then(response => response.json())
-    .then(response => this.setState({ friends: response.data}))
+    .then(response => this.setState({ newFriends: response.data}))  
   }
 
-
-
-
-
-  setFriendsArray = (friends) => {
-    let arrayFriends = friends.split(',');
-    return arrayFriends;
+  addFriend = (id) => {
+    fetch(`http://localhost:4000/addfriend?id=${id}`)
   }
+
 
   showCurrentFriends() {
     this.setState({showCurrentFriends: true, showNewFriends: false});
@@ -59,23 +58,34 @@ class friends extends Component {
   }
 
   render() {
-    const friendsString = this.state.userFriendsString;
+    let FriendsList = null;
+    let NewFriendsList = null;
+    
+    this.setCurrentFriends();
+    this.getCurrentFriends();
+     
+    if(typeof this.state.friends[0] !== 'undefined') {
+      FriendsList = this.state.friends.map((friend) => {
+         return <CurrentFriends key={friend[0].id} friend={friend[0].name}/>
+      })
+    }
 
-    const friendsArray = this.setFriendsArray(friendsString);
 
-    //console.log(this.state.friends);
+    NewFriendsList = this.state.newFriends.map((friend) => {
+         return <NewFriends
+            clickAdd={() => this.addFriend(friend.id)} 
+            key={friend.id} 
+            friend={friend.name}
+          />
+    })
 
-      let newFriendsList = this.state.friends.map((friend) => {
-         return <li key={friend.id}>{friend.name}</li>
-       })
 
     return (
       <div>
         <div onClick={this.showCurrentFriends.bind(this)}>Vrienden</div>
         <div onClick={this.showNewFriends.bind(this)}>Zoek vrienden</div>
-        {this.state.showCurrentFriends && <CurrentFriends/>}
-        {this.state.showNewFriends && <NewFriends friends={friendsArray}/>}
-        {newFriendsList}
+        {this.state.showCurrentFriends && FriendsList}
+        {this.state.showNewFriends && NewFriendsList}
       </div>
     );
   }

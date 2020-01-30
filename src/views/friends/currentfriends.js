@@ -1,13 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-class currentfriends extends Component {
-  render() {
+
+const CurrentFriends = (props) => {
     return (
-      <div>
-        huidige vrienden 
-      </div>
+        <li key={props.id}>{props.friend}</li>
     );
   }
-}
 
-export default currentfriends;
+export default CurrentFriends;
