@@ -114,7 +114,13 @@ app.get('/setnewfriends', (req, res) => {
 app.get('/addfriend', (req, res) => {
   let id = req.query;
   id = JSON.parse(id.id);
-  let newFriends = userFriends + ',' + id;
+  
+  let newFriends = null
+  if (userFriends === '') {
+    newFriends = id + ','
+  } else {
+    newFriends = userFriends + ',' + id;
+  }
 
   let ADDFRIEND_QUERY = `UPDATE users SET friends='${newFriends}' WHERE id='${userID}'`; 
 
@@ -122,9 +128,16 @@ app.get('/addfriend', (req, res) => {
     if(err) {
       return res.send(err)
     } else {
+      let UPDATEDFRIENDS_QUERY = `SELECT friends, name FROM users WHERE id=${userID}`;
+      connection.query(UPDATEDFRIENDS_QUERY, (err, results, fields) => {
+        userFriends = results[0].friends;
+      })
       return res.send('Vriend toegevoegd');
     }
   })
+
+  
+  
 })
 
 

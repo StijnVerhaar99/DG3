@@ -19,7 +19,8 @@ class friends extends Component {
 
   componentDidMount() {
     this.getUserFriends();
-    this.setNewFriends();   
+    this.setNewFriends();
+    this.setCurrentFriends();
   }
 
   getUserFriends = () => {
@@ -47,7 +48,11 @@ class friends extends Component {
 
   addFriend = (id) => {
     fetch(`http://localhost:4000/addfriend?id=${id}`)
-  }
+    this.setNewFriends();
+    this.setCurrentFriends();
+    this.getCurrentFriends();
+    window.location.href= '../user';
+    }
 
 
   showCurrentFriends() {
@@ -60,15 +65,22 @@ class friends extends Component {
   render() {
     let FriendsList = null;
     let NewFriendsList = null;
-    
-    this.setCurrentFriends();
-    this.getCurrentFriends();
-     
-    if(typeof this.state.friends[0] !== 'undefined') {
-      FriendsList = this.state.friends.map((friend) => {
-         return <CurrentFriends key={friend[0].id} friend={friend[0].name}/>
-      })
+
+    if (this.state.friends.length === 0) {
+      this.getCurrentFriends();
     }
+     
+    console.log('state friends' + this.state.friends)
+    if(this.state.friends.length !== 1) {
+      if(typeof this.state.friends[0] !== 'undefined') {
+        
+        FriendsList = this.state.friends.map((friend) => {
+          console.log(friend[0].name)
+           return <CurrentFriends key={friend[0].id} friend={friend[0].name}/>
+        })
+      }
+  }
+
 
 
     NewFriendsList = this.state.newFriends.map((friend) => {
