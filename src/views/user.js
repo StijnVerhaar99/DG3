@@ -33,8 +33,12 @@ class user extends Component {
 
         return (
             <div>
-    <h1>Hallo {userName} {userEmail}</h1>
+                <form action="http://localhost:4000/logout" method="POST">
+                    <button type="submit">Log uit</button>
+                </form>
+                <h1>Hallo {userName} {userEmail}</h1>
                 <Friends/>
+
             </div>
         );
     }

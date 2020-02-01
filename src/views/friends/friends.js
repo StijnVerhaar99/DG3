@@ -52,7 +52,15 @@ class friends extends Component {
     this.setCurrentFriends();
     this.getCurrentFriends();
     window.location.href= '../user';
-    }
+  }
+
+  deleteFriend(id) {
+    fetch(`http://localhost:4000/deletefriend?id=${id}`)
+    this.setNewFriends();
+    this.setCurrentFriends();
+    this.getCurrentFriends();
+    window.location.href= '../user';
+  }
 
 
   showCurrentFriends() {
@@ -66,20 +74,30 @@ class friends extends Component {
     let FriendsList = null;
     let NewFriendsList = null;
 
+    console.log(this.state.friends);
+
     if (this.state.friends.length === 0) {
       this.getCurrentFriends();
     }
-     
-    console.log('state friends' + this.state.friends)
-    if(this.state.friends.length !== 1) {
-      if(typeof this.state.friends[0] !== 'undefined') {
-        
-        FriendsList = this.state.friends.map((friend) => {
-          console.log(friend[0].name)
-           return <CurrentFriends key={friend[0].id} friend={friend[0].name}/>
-        })
+    
+    console.log();
+    //console.log(this.state.friends[0] === []);
+    //console.log('state friends' + this.state.friends)
+    if(this.state.userFriendsString !== '') {
+      if(this.state.friends.length >= 1) {
+        if(typeof this.state.friends[0] !== 'undefined') {
+          //console.log(this.state.friends )
+          FriendsList = this.state.friends.map((friend) => {
+            //console.log(friend[0].name )
+             return <CurrentFriends 
+             clickDelete={() => this.deleteFriend(friend[0].id)}
+             key={friend[0].id} 
+             friend={friend[0].name}
+             />
+          })
+        }
       }
-  }
+    }
 
 
 

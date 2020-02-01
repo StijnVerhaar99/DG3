@@ -49,6 +49,17 @@ function setFriendsArray(friends) {
     return arrayFriends;
 }
   
+  let SELECTFRIENDS_QUERY = `SELECT friends FROM users WHERE id=${userID}`;
+  
+
+  connection.query(SELECTFRIENDS_QUERY, (err, results) => {
+    if(err) {
+      return res.send(err);
+    } else {
+        userFriends = results[0].friends
+    }
+  })
+
   var i;
   let friends = setFriendsArray(userFriends)
   currentFriendsArray = [];
@@ -117,7 +128,7 @@ app.get('/addfriend', (req, res) => {
   
   let newFriends = null
   if (userFriends === '') {
-    newFriends = id + ','
+    newFriends = id
   } else {
     newFriends = userFriends + ',' + id;
   }
@@ -134,10 +145,26 @@ app.get('/addfriend', (req, res) => {
       })
       return res.send('Vriend toegevoegd');
     }
-  })
+  }) 
+})
 
-  
-  
+app.get('/deletefriend', (req, res) => {
+  let id = req.query; 
+  id = JSON.parse(id.id);
+  id = id + ',';
+
+  let deleteFriend = userFriends;
+  deleteFriend = deleteFriend.replace(id, "");
+  console.log(deleteFriend);
+  let DELETEFRIEND_QUERY = `UPDATE users SET friends='${deleteFriend}' WHERE id='${userID}'`;
+
+  connection.query(DELETEFRIEND_QUERY, (err) => {
+    if(err) {
+      res.send(err);
+    } else {
+      res.send('Vriend verwijderd');
+    }
+  })
 })
 
 
@@ -193,6 +220,15 @@ app.post('/register', ( req, res ) => {
       }
     });
 })  
+
+app.post('/logout', (req, res ) => {
+ userData = null;
+ userFriends = null;
+ userID = null;
+ currentFriendsArray = [];
+
+ res.redirect(route + '/');
+})
 
 app.listen(4000, () => {
     console.log('Server listening on port 4000')
