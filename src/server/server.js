@@ -4,6 +4,8 @@ const mysql = require('mysql2');
 const md5 = require('md5');
 const session = require('express-session');
 const conn = require('./dbconfig.js');
+const multer = require('multer');
+const path = require('path');
 
 let connection = conn.connection(mysql);
 
@@ -30,12 +32,17 @@ let userID = null;
 let currentFriendsArray = [];
 
 
+
+
+
 app.get('/getuserdata', (req, res) => {
   return res.json({
     userData
   })
 })
 
+
+//VRIENDEN SIDE
 app.get('/getuserfriends', (req, res) => {
   return res.json({
     userFriends
@@ -166,8 +173,9 @@ app.get('/deletefriend', (req, res) => {
     }
   })
 })
+//EINDE VRIENDEN SIDE
 
-
+//AUTHENTICATION IN SIDE
 app.post('/login', ( req, res ) => {
   let email = req.body.email;
   let password = md5(req.body.password);
@@ -229,6 +237,67 @@ app.post('/logout', (req, res ) => {
 
  res.redirect(route + '/');
 })
+//EINDE AUTHENTICATION SIDE
+
+//BERICHTEN SIDE
+app.get('/getberichten', ( req, res ) => {
+  let GETBERICHTEN_QUERY = `SELECT * FROM messages WHERE user_id=${userID}`;
+})
+
+app.get('/postberichten', ( req, res ) => {
+  const { message, toUserId } = req.query;
+
+  let POSTBERICHTEN_QUERY = `INSERT INTO messages (message, user_id, from_id) VALUES '${message}', '${toUserId}', '${userID}'`;
+})
+
+app.post('/uploadpicture', (req, res) => {
+  
+  let randomNumber = Math.random();
+
+  console.log(randomNumber);
+
+  const storage = multer.diskStorage({
+    destination: '../uploads/',
+    filename: function(req, file, cb) {
+      cb(null, file.fieldname + '-' + randomNumber + path.extname(file.originalname));
+    }
+  })
+  
+  const upload = multer({
+    storage: storage
+  }).single('MyImage')
+  
+  upload(req, res, (err) => {
+    if(err) {
+      res.send(err);
+    } else {
+      let UPLOADPICTURE_QUERY = `INSERT INTO pictures (url, user) VALUES ('${req.file.filename}', '${userID}')`;
+      connection.query(UPLOADPICTURE_QUERY, (err) => {
+        if(err) {
+          res.send(err);
+        } else {
+          res.redirect(route + '/user');
+        }
+      })
+    }
+  })
+})
+
+app.get('/getpictures', (req, res) => {
+  let SELECTPICTURES_QUERY = `SELECT * FROM pictures WHERE user=${userID}`;
+
+  connection.query(SELECTPICTURES_QUERY, (err, results) => {
+    if(err) {
+      res.send(err);
+    } else {
+      res.json({
+        data: results
+      })
+    }
+  })
+})
+
+
 
 app.listen(4000, () => {
     console.log('Server listening on port 4000')

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import Friends from './friends/friends';
+import Pictures from './pictures';
 
 class user extends Component {
 
@@ -38,6 +39,8 @@ class user extends Component {
                 </form>
                 <h1>Hallo {userName} {userEmail}</h1>
                 <Friends/>
+                <Pictures/>
+
 
             </div>
         );
