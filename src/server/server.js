@@ -33,8 +33,6 @@ let currentFriendsArray = [];
 
 
 
-
-
 app.get('/getuserdata', (req, res) => {
   return res.json({
     userData
@@ -187,7 +185,7 @@ app.post('/login', ( req, res ) => {
       userData = results;
       userFriends = results[0].friends;
       userID = results[0].id;
-      res.redirect(route + '/user')
+      res.redirect(route + '/user?user=' + userID)
     } else {
       error = 'incorrect';
       res.redirect(route + '/?err=' + error)
@@ -240,14 +238,33 @@ app.post('/logout', (req, res ) => {
 //EINDE AUTHENTICATION SIDE
 
 //BERICHTEN SIDE
-app.get('/getberichten', ( req, res ) => {
+app.get('/getmessages', ( req, res ) => {
   let GETBERICHTEN_QUERY = `SELECT * FROM messages WHERE user_id=${userID}`;
+
+  connection.query(GETBERICHTEN_QUERY, (err, results) => {
+    if(err) {
+      res.send(err);
+    } else {
+      res.json({
+        data: results
+      })
+    }
+  })
 })
 
-app.get('/postberichten', ( req, res ) => {
-  const { message, toUserId } = req.query;
+app.post('/placemessage', ( req, res ) => {
+  const message = req.body.message;
+  const toUserId = req.query.thisUserID;
 
-  let POSTBERICHTEN_QUERY = `INSERT INTO messages (message, user_id, from_id) VALUES '${message}', '${toUserId}', '${userID}'`;
+  let POSTBERICHTEN_QUERY = `INSERT INTO messages (message, user_id, from_id) VALUES ('${message}', ${toUserId}, '${userID}')`;
+
+  connection.query(POSTBERICHTEN_QUERY, (err) => {
+    if(err) {
+      res.send(err);
+    } else {
+      res.redirect(route + `/user?user=${toUserId}`);
+    }
+  })
 })
 
 app.post('/uploadpicture', (req, res) => {
