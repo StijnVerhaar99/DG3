@@ -3,7 +3,10 @@ import React from 'react';
 
 const CurrentFriends = (props) => {
     return (
-        <li onClick={props.clickDelete} key={props.id}>{props.friend} </li>
+      <div className='wrapper'> 
+        <div className='friends-name' onClick={props.goToUser} key={props.id}>{props.friend} </div> 
+        <button className='friends-button small-button' onClick={props.clickDelete}>Verwijder</button> 
+      </div>
     );
   }
 

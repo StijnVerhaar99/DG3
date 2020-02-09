@@ -31,12 +31,27 @@ let userFriends = null;
 let userID = null;
 let currentFriendsArray = [];
 
-
+app.get('/getuserid', (req, res) => {
+  return res.json({
+    data: userID
+  })
+})
 
 app.get('/getuserdata', (req, res) => {
-  return res.json({
-    userData
+  let user = req.query; 
+  user = JSON.parse(user.user);
+  let LOGIN_QUERY = `SELECT * FROM users WHERE id='${user}'`;
+
+  connection.query(LOGIN_QUERY, (err, results) => {
+    if(err) {
+      res.send(err)
+    } else {
+      return res.json({
+        data: results
+      })
+    }
   })
+
 })
 
 
@@ -48,13 +63,16 @@ app.get('/getuserfriends', (req, res) => {
 })
 
 //CURRENT
-app.get('/setcurrentfriends', (req, res) => {
-function setFriendsArray(friends) {
-    let arrayFriends = friends.split(',');
-    return arrayFriends;
-}
+  app.get('/setcurrentfriends', (req, res) => {
+  function setFriendsArray(friends) {
+      let arrayFriends = friends.split(',');
+      return arrayFriends;
+  }
+
+  let user = req.query; 
+  user = JSON.parse(user.user);
   
-  let SELECTFRIENDS_QUERY = `SELECT friends FROM users WHERE id=${userID}`;
+  let SELECTFRIENDS_QUERY = `SELECT friends FROM users WHERE id=${user}`;
   
 
   connection.query(SELECTFRIENDS_QUERY, (err, results) => {
@@ -160,7 +178,6 @@ app.get('/deletefriend', (req, res) => {
 
   let deleteFriend = userFriends;
   deleteFriend = deleteFriend.replace(id, "");
-  console.log(deleteFriend);
   let DELETEFRIEND_QUERY = `UPDATE users SET friends='${deleteFriend}' WHERE id='${userID}'`;
 
   connection.query(DELETEFRIEND_QUERY, (err) => {
@@ -189,7 +206,6 @@ app.post('/login', ( req, res ) => {
     } else {
       error = 'incorrect';
       res.redirect(route + '/?err=' + error)
-      console.log('verkeerde login');
     }
   });
 
@@ -202,8 +218,10 @@ app.post('/register', ( req, res ) => {
   const pass2 = req.body.password2;
   const password = md5(pass1);
 
+  const avatar = 'useravatar.png';
+
   const USERTAKEN_QUERY = `SELECT * FROM users WHERE email = '${email}'`;
-  const REGISTER_QUERY = `INSERT INTO users ( name, email, password ) VALUES ('${username}', '${email}', '${password}')`;
+  const REGISTER_QUERY = `INSERT INTO users ( name, email, password, avatar ) VALUES ('${username}', '${email}', '${password}', '${avatar}')`;
 
   let error = null;
 
@@ -237,9 +255,26 @@ app.post('/logout', (req, res ) => {
 })
 //EINDE AUTHENTICATION SIDE
 
+app.get('/getvisitinguserdata', (req, res ) => {
+  let visitUser = req.query
+  visitUser = JSON.parse(visitUser.visitUser)
+  let LOGIN_QUERY = `SELECT * FROM users WHERE id=${visitUser}`;
+
+  connection.query(LOGIN_QUERY, (err, results, fields) => {
+    if(err) {
+      res.send(err)
+    } else {
+      userData = results;
+      res.redirect(route + '/user?user=' + userID)
+    }
+  });
+})
+
 //BERICHTEN SIDE
 app.get('/getmessages', ( req, res ) => {
-  let GETBERICHTEN_QUERY = `SELECT * FROM messages WHERE user_id=${userID}`;
+  let user = req.query
+  user = JSON.parse(user.user)
+  let GETBERICHTEN_QUERY = `SELECT * FROM messages WHERE user_id=${user}`;
 
   connection.query(GETBERICHTEN_QUERY, (err, results) => {
     if(err) {
@@ -256,7 +291,7 @@ app.post('/placemessage', ( req, res ) => {
   const message = req.body.message;
   const toUserId = req.query.thisUserID;
 
-  let POSTBERICHTEN_QUERY = `INSERT INTO messages (message, user_id, from_id) VALUES ('${message}', ${toUserId}, '${userID}')`;
+  let POSTBERICHTEN_QUERY = `INSERT INTO messages (message, user_id, from_id) VALUES ('${message}', '${toUserId}', '${userID}')`;
 
   connection.query(POSTBERICHTEN_QUERY, (err) => {
     if(err) {
@@ -270,8 +305,6 @@ app.post('/placemessage', ( req, res ) => {
 app.post('/uploadpicture', (req, res) => {
   
   let randomNumber = Math.random();
-
-  console.log(randomNumber);
 
   const storage = multer.diskStorage({
     destination: '../uploads/',
@@ -293,7 +326,7 @@ app.post('/uploadpicture', (req, res) => {
         if(err) {
           res.send(err);
         } else {
-          res.redirect(route + '/user');
+          res.redirect(route + `/user?user=${userID}`);
         }
       })
     }
@@ -301,6 +334,7 @@ app.post('/uploadpicture', (req, res) => {
 })
 
 app.get('/getpictures', (req, res) => {
+  const userID = req.query.thisUserID;
   let SELECTPICTURES_QUERY = `SELECT * FROM pictures WHERE user=${userID}`;
 
   connection.query(SELECTPICTURES_QUERY, (err, results) => {
@@ -314,6 +348,62 @@ app.get('/getpictures', (req, res) => {
   })
 })
 
+app.post('/home' , (req, res) => {
+  res.redirect(route + `/user?user=${userID}`)
+})
+
+app.post('/updateprofile', (req, res) => {
+  let userName = req.body.name;
+  let userColor = req.body.color;
+  let userFont = req.body.font
+
+  let UPDATEPROFILE_QUERY = null;
+  if(userName === '') {
+    UPDATEPROFILE_QUERY = `UPDATE users SET color='${userColor}', font='${userFont}' WHERE id='${userID}'`
+  } else {
+    UPDATEPROFILE_QUERY = `UPDATE users SET name='${userName}', color='${userColor}', font='${userFont}' WHERE id='${userID}'`
+  }
+  
+  
+  connection.query(UPDATEPROFILE_QUERY, (err) => {
+    if(err) {
+      res.send(err);
+    } else {
+      res.redirect(route + `/user?user=${userID}`);
+    }
+  })
+})
+
+app.post('/updateprofileavatar', (req, res) => {
+  let filename = null
+  const storage = multer.diskStorage({
+    destination: '../uploads/',
+    filename: function(req, file, cb) {
+      filename = file.fieldname + userID + path.extname(file.originalname)
+      cb(null, filename);
+    }
+  })
+  
+  const upload = multer({
+    storage: storage
+  }).single('useravatar')
+
+  
+  upload(req, res, (err) => {
+    if(err) {
+      res.send(err);
+    } else {
+      let UPDATEPERSONAVATAR_QUERY = `UPDATE users SET avatar='${filename}' WHERE id='${userID}'`;
+      connection.query(UPDATEPERSONAVATAR_QUERY, (err) => {
+        if(err) {
+          res.send(err)
+        } else {
+          res.redirect(route + `/user?user=${userID}`);
+        }
+      })
+    }
+  })
+})
 
 
 app.listen(4000, () => {

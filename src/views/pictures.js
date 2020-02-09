@@ -11,25 +11,42 @@ class pictures extends Component {
     }
 
     getPictures() {
-        fetch('http://localhost:4000/getpictures')
+        fetch(`http://localhost:4000/getpictures?thisUserID=${this.getThisUser()}`)
         .then(response => response.json())
         .then(response => this.setState({ pictures: response.data}))
     }
 
+    getThisUser() {
+        var urlParams = new URLSearchParams(window.location.search);
+        let thisUser = (urlParams.get('user')); 
+        return thisUser;
+    }
+
     render() {
+
+        let uploadPicture = null;
+
+        if(this.props.sameUser) {
+            uploadPicture = <form action="http://localhost:4000/uploadpicture" method="POST" enctype="multipart/form-data">
+                                <p>Upload foto's</p>
+                                <input name="MyImage" type="file"></input>
+                                <button type="submit" >Upload</button>
+                            </form>
+        }
+
         return (
-            <div>
-                <h1>Foto's</h1>
-                <form action="http://localhost:4000/uploadpicture" method="POST" enctype="multipart/form-data">
-                    <p>Upload foto's</p>
-                    <input name="MyImage" type="file"></input>
-                    <button type="submit" >Upload</button>
-                </form>
-                <div>
+            <div className='component'>
+                <div className='photo-upload'> 
+                    <h3>Foto's</h3>
+                    {uploadPicture}
+                </div>
+                <div className='photo-view'>
                     {this.state.pictures.map((picture) => {
-                    return <img src={require(`../uploads/${picture.url}`)} alt='' height='250' width='250'></img>
+                    return <img className='photo-view-image' src={require(`../uploads/${picture.url}`)} alt=''></img>
                     })}
                 </div>
+                
+
             </div>
         );
     }

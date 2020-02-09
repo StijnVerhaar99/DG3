@@ -30,7 +30,7 @@ class friends extends Component {
   }
 
   setCurrentFriends = () => {
-    fetch(`http://localhost:4000/setcurrentfriends`)
+    fetch(`http://localhost:4000/setcurrentfriends?user=${this.getThisUser()}`)
   }
 
   getCurrentFriends = () => {
@@ -51,7 +51,7 @@ class friends extends Component {
     this.setNewFriends();
     this.setCurrentFriends();
     this.getCurrentFriends();
-    window.location.href= '../user';
+    window.location.href= `../user?user=${this.getThisUser()}`;
   }
 
   deleteFriend(id) {
@@ -59,7 +59,17 @@ class friends extends Component {
     this.setNewFriends();
     this.setCurrentFriends();
     this.getCurrentFriends();
-    window.location.href= '../user';
+    window.location.href= `../user?user=${this.getThisUser()}`;
+  }
+
+  getThisUser() {
+    var urlParams = new URLSearchParams(window.location.search);
+    let thisUser = (urlParams.get('user')); 
+    return thisUser;
+}
+
+  goToUser(id) {
+    window.location.replace(`http://localhost:3000/user?user=${id}`)
   }
 
 
@@ -70,27 +80,27 @@ class friends extends Component {
     this.setState({showCurrentFriends: false, showNewFriends: true});
   }
 
+  getThisUser() {
+    var urlParams = new URLSearchParams(window.location.search);
+    let thisUser = (urlParams.get('user')); 
+    return thisUser;
+  }
+
   render() {
     let FriendsList = null;
     let NewFriendsList = null;
-
-    console.log(this.state.friends);
 
     if (this.state.friends.length === 0) {
       this.getCurrentFriends();
     }
     
-    console.log();
-    //console.log(this.state.friends[0] === []);
-    //console.log('state friends' + this.state.friends)
     if(this.state.userFriendsString !== '') {
       if(this.state.friends.length >= 1) {
         if(typeof this.state.friends[0] !== 'undefined') {
-          //console.log(this.state.friends )
           FriendsList = this.state.friends.map((friend) => {
-            //console.log(friend[0].name )
              return <CurrentFriends 
              clickDelete={() => this.deleteFriend(friend[0].id)}
+             goToUser={() => this.goToUser(friend[0].id)}
              key={friend[0].id} 
              friend={friend[0].name}
              />
@@ -99,21 +109,29 @@ class friends extends Component {
       }
     }
 
-
-
     NewFriendsList = this.state.newFriends.map((friend) => {
-         return <NewFriends
-            clickAdd={() => this.addFriend(friend.id)} 
-            key={friend.id} 
-            friend={friend.name}
-          />
+      return <NewFriends
+          clickAdd={() => this.addFriend(friend.id)} 
+          key={friend.id} 
+          friend={friend.name}
+        />
     })
+
+    let searchButton = null;
+
+    if(this.props.sameUser) {
+      searchButton = <p className='friends-button-right' onClick={this.showNewFriends.bind(this)}>Zoek vrienden</p>
+    }
+
 
 
     return (
-      <div>
-        <div onClick={this.showCurrentFriends.bind(this)}>Vrienden</div>
-        <div onClick={this.showNewFriends.bind(this)}>Zoek vrienden</div>
+      <div className='component'>
+        <div className='wrapper'>
+          <p className='friends-button-left' onClick={this.showCurrentFriends.bind(this)}>Vrienden</p>
+          {searchButton}
+        </div>
+
         {this.state.showCurrentFriends && FriendsList}
         {this.state.showNewFriends && NewFriendsList}
       </div>
